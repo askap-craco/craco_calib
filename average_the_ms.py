@@ -1,8 +1,12 @@
 from casatasks import split
+from craco_vis import SimpleMeasurementSet
 import argparse
 
-def process(vis, outvis, timebin, datacolumn = 'data'):
-    split(vis=vis, outputvis=outvis, timebin=timebin, datacolumn=datacolumn)
+def process(vis, outvis, timebin, freqbin, datacolumn = 'data'):
+    # add function to determine the frequency bin width
+    cracovis = SimpleMeasurementSet(vis)
+    width = int(freqbin*1e6 // cracovis.foff)
+    split(vis=vis, outputvis=outvis, timebin=timebin, width=width, datacolumn=datacolumn)
 
 def main(args):
     if args.vis is None:
@@ -24,6 +28,7 @@ if __name__== '__main__':
     a.add_argument("-vis", type=str, help="Input visibility ms")
     a.add_argument("-outvis", type=str, help="Output visibility ms", default=None)
     a.add_argument("-timebin", type=float, help="Sampling time (in seconds) of the output vis ms (def:10)", default=10)
+    a.add_argument("-freqbin", type=int, help="frequency resolution (in MHz) of the output vis ms (def: 1 MHz)", default=1)
 
     args = a.parse_args()
     main(args)

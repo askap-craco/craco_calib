@@ -16,7 +16,7 @@ def main(args):
     averaged_vis = inp_vis.strip("ms") + "aver.ms"
     print("------> Averaging MS ({0}) and saving to {1}".format(inp_vis, averaged_vis))
 
-    average(inp_vis, averaged_vis, timebin="10s")
+    average(inp_vis, averaged_vis, timebin="10s", freqbin=1) # 1 MHz
 
     four_pol_vis = averaged_vis.strip("ms") + "4pol.ms"
 

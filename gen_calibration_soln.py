@@ -1,9 +1,14 @@
+#!/usr/bin/env python
+
 import argparse, os
+import numpy as np
+
 from casatasks import importuvfits
 from average_the_ms import process as average
 from convert import process as convert
 from extract_model_for_ms import process as extract
 from flag import process as flag
+from craco_vis import SimpleMeasurementSet
 
 def main(args):
     if args.vis_ms:
@@ -31,6 +36,11 @@ def main(args):
     calibrate_cmd = "{build_dir}/calibrate -minuv 200.0 -m {model} {vis} {bin_name}".format(model=model_name, vis=four_pol_vis, build_dir=args.build_dir, bin_name=bin_name)
     print("------> Calibrating using the sky model and saving soln to {0}\n------> Executing {1}".format(bin_name, calibrate_cmd))
     os.system(calibrate_cmd)
+
+    print("------> Exporting frequency from measurement sets....")
+    craco_ms = SimpleMeasurementSet(four_pol_vis)
+    freq_name = four_pol_vis.replace(".ms", ".freq.npy")
+    np.save(freq_name, craco_ms.freqs)
 
     print("-------> All Done!  We can now apply the solution saved in the soln file - {0}".format(bin_name))
 

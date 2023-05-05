@@ -50,6 +50,12 @@ class SimpleMeasurementSet():
     def foff(self):
         return self.freqtab.getcell("CHAN_WIDTH", 0)[0]
 
+    @property
+    def freqs(self):
+        """
+        list of frequencies...
+        """
+        return self.freqtab.getcol("CHAN_FREQ")[0]
     
 
     

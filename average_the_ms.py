@@ -1,8 +1,11 @@
 from casatasks import split
 import argparse
 
-def process(vis, outvis, timebin, datacolumn = 'data'):
-    split(vis=vis, outputvis=outvis, timebin=timebin, datacolumn=datacolumn)
+def process(vis, outvis, timebin, freqbin, datacolumn = 'data'):
+    # add function to determine the frequency bin width
+    cracovis = SimpleMeasurementSet(vis)
+    width = int(freqbin*1e6 // cracovis.foff)
+    split(vis=vis, outputvis=outvis, timebin=timebin, width=width, datacolumn=datacolumn)
 
 def main(args):
     if args.vis is None:

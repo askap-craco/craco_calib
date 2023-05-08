@@ -125,7 +125,7 @@ def process(ms_name, pb_radii, flux_cutoff, spectral_index = -0.83):
     #if np.abs(galactic_b) > 5.0:
     #   print("Using Galactic Cut RACS Catalogue")
     #catalog_file = "/group/askap/elenc/catalogues/racs-low.fits"
-    catalog_file = "/data/craco/gup037/racs-low.fits"
+    catalog_file = "/data/craco/wan342/data/catalogue/racs-low.fits"
     #else:
     #   print("Using Galactic RACS catalogue")
     #   catalog_file = "/group/askap/elenc/catalogues/RACS-25asec-Mosaiced_Gaussians_Final_GalacticRegion_v2021_06.fits"

@@ -25,7 +25,10 @@ def main(args):
 
     model_name = four_pol_vis.strip("ms") + "model"
     print("------> Extracting sky model and saving to {0}".format(model_name))
-    extract(four_pol_vis, pb_radii = 2.0, flux_cutoff = 0.005, spectral_index = -0.83)
+    extract(
+        four_pol_vis, pb_radii = 2.0, flux_cutoff = 0.005, spectral_index = -0.83,
+        catalog_file=args.catalog, freq_cat=args.catfreq*1e6,
+    )
 
     bin_name = four_pol_vis.strip("ms") + "bin"
     calibrate_cmd = "{build_dir}/calibrate -minuv 200.0 -m {model} {vis} {bin_name}".format(model=model_name, vis=four_pol_vis, build_dir=args.build_dir, bin_name=bin_name)
@@ -40,7 +43,19 @@ if __name__ == '__main__':
     group.add_argument("-vis_ms", type=str, help="Path to visibility ms file")
     group.add_argument("-vis_uvfits", type=str, help="Path to visibility UVFits file")
     
-    a.add_argument("-build_dir", type=str, help="Path to the build directory where the compiled scripts are kept", default="/home/gup037/Codes/CRACO_calib/scripts/")
+    a.add_argument(
+        "-build_dir", type=str, help="Path to the build directory where the compiled scripts are kept", 
+        default="/home/gup037/Codes/CRACO_calib/scripts/"
+    )
+    a.add_argument(
+        "-catalog", type=str, help="Path to the catalogue used in self-calibration",
+        default="/data/craco/wan342/data/catalogue/racs-low.fits"
+    )
+    a.add_argument(
+        "-catfreq", type=float, help="central frequency of the catalogue provided",
+        default=887.5
+    )
+
     args = a.parse_args()
     main(args)
 

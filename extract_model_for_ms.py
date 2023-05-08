@@ -97,7 +97,7 @@ def flux_nu(S1, alpha, nu1, nu2):
     return S0 * np.power(nu2, alpha)
 
 
-def process(ms_name, pb_radii, flux_cutoff, spectral_index = -0.83):
+def process(ms_name, pb_radii, flux_cutoff, spectral_index = -0.83, catalog_file="./racs-low.fits", freq_cat = 887.5e6):
 
     model_name = ms_name.replace(".ms", ".model")
     model_reg_name = ms_name.replace(".ms", ".model.reg")

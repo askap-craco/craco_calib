@@ -120,16 +120,6 @@ def process(ms_name, pb_radii, flux_cutoff, spectral_index = -0.83, catalog_file
     
     radial_cutoff = pb_radii * np.degrees(pb.getFWHM()) # Go out just over 2 times the half-power point.
     print("Radial cutoff = %.3f degrees" %(radial_cutoff))
-    
-    #catalog_file = "/group/askap/elenc/catalogues/RACS-25asec-Mosaiced_Gaussians_Final_GalacticCut_v2021_06.fits"
-    #if np.abs(galactic_b) > 5.0:
-    #   print("Using Galactic Cut RACS Catalogue")
-    #catalog_file = "/group/askap/elenc/catalogues/racs-low.fits"
-    catalog_file = "/data/craco/wan342/data/catalogue/racs-low.fits"
-    #else:
-    #   print("Using Galactic RACS catalogue")
-    #   catalog_file = "/group/askap/elenc/catalogues/RACS-25asec-Mosaiced_Gaussians_Final_GalacticRegion_v2021_06.fits"
-    freq_cat = 887.5e6
         
     print("Reading RACS catalogue")
     gsm_cat = Table.read(catalog_file)

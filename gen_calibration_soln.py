@@ -5,6 +5,8 @@ from convert import process as convert
 from extract_model_for_ms import process as extract
 from flag import process as flag
 
+from carco_vis import SimpleMeasurementSet
+
 def main(args):
     if args.vis_ms:
         inp_vis = args.vis_ms
@@ -35,6 +37,17 @@ def main(args):
     print("------> Calibrating using the sky model and saving soln to {0}\n------> Executing {1}".format(bin_name, calibrate_cmd))
     os.system(calibrate_cmd)
 
+    print("------> Exporting frequency from measurement sets....")
+    craco_ms = SimpleMeasurementSet(four_pol_vis)
+    freq_name = four_pol_vis.replace(".ms", ".freq.npy")
+    np.save(freq_name, craco_ms.freqs)
+
+    if args.clean:
+        print("------> Cleaning the directory....")
+        work_dir = os.path.dirname(bin_name)
+        os.system(f"rm -r {work_dir}/*.ms")
+        
+
     print("-------> All Done!  We can now apply the solution saved in the soln file - {0}".format(bin_name))
 
 if __name__ == '__main__':
@@ -42,6 +55,12 @@ if __name__ == '__main__':
     group = a.add_mutually_exclusive_group()
     group.add_argument("-vis_ms", type=str, help="Path to visibility ms file")
     group.add_argument("-vis_uvfits", type=str, help="Path to visibility UVFits file")
+
+    ### remove measurement sets...
+    a.add_argument(
+        "-clean", type=bool, help="Clean the solution directory (i.e., remove all measurement sets)"
+        default=True
+    )
     
     a.add_argument(
         "-build_dir", type=str, help="Path to the build directory where the compiled scripts are kept", 

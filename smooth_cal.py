@@ -168,7 +168,7 @@ def _check_refant(bp, ia):
     bp_ant = bp[0, ia, ...]
     return not _check_nan(bp_ant)
 
-def _smooth_amp(bp_chan, deg=12, mask=None):
+def _smooth_amp_iter(bp_chan, deg=12, mask=None):
     """
     make fit of bandpass amplitude for a specific antenna, polarisation, and return the smoothed bandpass
 
@@ -204,6 +204,62 @@ def _smooth_amp(bp_chan, deg=12, mask=None):
     bp_ = p_func(x_)
 
     return coef, bp_, bp_f
+
+def _smooth_amp(
+        bp_chan, maxdeg=6, mask=None,
+        deg_sigma=[
+            (0, 6), (1, 5), (2, 5), (3, 5),
+            (4, 3), (5, 3), (6, 3),
+        ],
+        loop=3,
+    ):
+    """
+    make fit of bandpass amplitude for a specific antenna, polarisation, and return the smoothed bandpass
+
+    Parameters
+    ----------
+    bp_chan: array-like
+        bandpass solution for a specific antenna, and a polarisation
+        it should be a 1-D array, with the number of the element equals to nchan
+    maxdeg: int
+        maximum polynomial degree for the fitting
+    mask: np.array
+        numpy array of masks to mask out bad-behaved channels
+    deg_sigma: list of 2 elements tuples
+        degree of polyniomial fitting and corresponding sigma to determine the outliers
+
+    Return
+    ----------
+    p_coef: np.array
+        polynomial coefficients
+    bp_: np.array
+        smoothed bandpass value
+    bp_f: np.array
+        input bandpass amplitude with mask
+    """
+    assert maxdeg+1 <= len(deg_sigma), "not enough sigma threshold found in `deg_sigma`"
+
+    bp_chan_amp = np.abs(bp_chan)
+
+    if mask is not None: bp_chan_amp[mask] = np.nan
+    if _check_nan(bp_chan_amp): return np.array([0]), bp_chan_amp, bp_chan_amp
+    x_ = np.arange(bp_chan_amp.shape[0])
+
+    # perform fitting - for amplitude, don't do it in a regular iterative way
+    _bp_chan_amp = bp_chan_amp.copy() # make a copy
+    for deg, sigma in deg_sigma:
+        for i in range(loop):
+            # find out median here in the 0-th order
+            if deg == 0:
+                coef = np.array(np.median(_bp_chan_amp))
+            else:
+                coef = _fit_value(_bp_chan_amp, x_=x_, deg=deg)
+            _bp_chan_amp = _flag_bad(_bp_chan_amp, coef, x_=x_, sigma=sigma)
+
+    p_func = np.poly1d(coef)
+    bp_ = p_func(x_)
+
+    return coef, bp_, _bp_chan_amp
 
 def _smooth_phase(bp_chan, bp_chan_ref, mask=None):
     """
@@ -351,7 +407,7 @@ def smooth_bandpass(bp, amp_threshold=20., plot=True, plotdir="./"):
                 bp_chan = bp[i, ia, :, ipol]
                 # mask = np.abs(bp_chan) > 20.
                 mask = None
-                amp_coef, bp_amp_, bp_amp_f = _smooth_amp(bp_chan, deg=12, mask=mask)
+                amp_coef, bp_amp_, bp_amp_f = _smooth_amp(bp_chan, maxdeg=4, mask=mask)
                 phase_coef, bp_phase_, bp_phase_f = _smooth_phase(bp_chan, bp[i, ia_ref, :, ipol], mask=mask)
 
                 ### make it to amp * np.exp(i*phase)

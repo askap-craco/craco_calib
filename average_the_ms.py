@@ -1,6 +1,8 @@
 from casatasks import split
 import argparse
 
+from craco_vis import SimpleMeasurementSet
+
 def process(vis, outvis, timebin, freqbin, datacolumn = 'data'):
     # add function to determine the frequency bin width
     cracovis = SimpleMeasurementSet(vis)

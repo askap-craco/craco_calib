@@ -49,6 +49,7 @@ def _find_uvfits(sbid):
     """
     sbid = "SB{:0>6}".format(sbid)
     return glob.glob(f"/data/seren-*/big/craco/{sbid}/scans/*/*/results/b??.uvfits")
+    # return glob.glob(f"/data/seren-*/big/craco/{sbid}/scans/*/*/results/b00.uvfits")
 
 def _extract_uvfits_info(path):
     """
@@ -89,7 +90,7 @@ def _construct_workdir(path, basedir="./"):
 
 def calibrate_sbid(
         sbid, basedir="./", build_dir="/data/craco/wan342/scripts/craco_calib/scripts",
-        catalog="racs-low.fits", catfreq=887.5
+        catalog="/data/big/craco/calibration/dat/racs-low.fits", catfreq=887.5
     ):
     """
     produce calibration solution based on a given sbid.
@@ -100,6 +101,7 @@ def calibrate_sbid(
         work_dir = _construct_workdir(uvfitspath, basedir=basedir)
         execute_calibration(
             craco_input=uvfitspath,
+            work_dir=work_dir,
             build_dir=build_dir,
             catalog=catalog, catfreq=catfreq,
         )
@@ -108,17 +110,20 @@ def _main():
     args = argparse.ArgumentParser()
     args.add_argument("-s", "--sbid", type=str, help="sbid (without letter SB)")
     args.add_argument(
-        "-d", "--dir", type=str, help="base directory to save the output results"
-        
+        "-d", "--dir", type=str, help="base directory to save the output results",
+        default="/data/big/craco/calibration"
     )
     args.add_argument(
         "-build_dir", type=str, help="calibration binary files directory", 
-        default="/data/craco/wan342/scripts/craco_calib/scripts"
+        default="/data/big/craco/wan342/craco_calib/scripts/"
     )
 
     values = args.parse_args()
 
-    execute_calibration(values.craco_input, values.work_dir, values.build_dir)
+    calibrate_sbid(
+        sbid=values.sbid, basedir=values.dir, build_dir=values.build_dir,
+        catalog="/data/big/craco/calibration/dat/racs-low.fits", catfreq=887.5
+    )
 
 if __name__ == "__main__":
     _main()

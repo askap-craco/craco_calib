@@ -1,11 +1,14 @@
+#!/usr/bin/env python
+
 import argparse, os
+import numpy as np
 from casatasks import importuvfits
 from average_the_ms import process as average
 from convert import process as convert
 from extract_model_for_ms import process as extract
 from flag import process as flag
 
-from carco_vis import SimpleMeasurementSet
+from craco_vis import SimpleMeasurementSet
 
 def main(args):
     if args.vis_ms:
@@ -45,6 +48,7 @@ def main(args):
     if args.clean:
         print("------> Cleaning the directory....")
         work_dir = os.path.dirname(bin_name)
+        # print(f"rm -r {work_dir}/*.ms")
         os.system(f"rm -r {work_dir}/*.ms")
         
 
@@ -58,13 +62,13 @@ if __name__ == '__main__':
 
     ### remove measurement sets...
     a.add_argument(
-        "-clean", type=bool, help="Clean the solution directory (i.e., remove all measurement sets)"
-        default=True
+        "-clean", type=bool, help="Clean the solution directory (i.e., remove all measurement sets)",
+        default=True,
     )
     
     a.add_argument(
         "-build_dir", type=str, help="Path to the build directory where the compiled scripts are kept", 
-        default="/home/gup037/Codes/CRACO_calib/scripts/"
+        default="/data/big/craco/wan342/craco_calib/scripts/"
     )
     a.add_argument(
         "-catalog", type=str, help="Path to the catalogue used in self-calibration",

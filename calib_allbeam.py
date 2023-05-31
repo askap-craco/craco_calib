@@ -41,14 +41,14 @@ def execute_calibration(
 
 
 ### functions for running one SBID as a whole
-def _find_uvfits(sbid):
+def _find_uvfits(sbid, runname="results"):
     """
     find all uvfits files for a given sbid
 
     file pattern: /data/seren-01/big/craco/SB049721/scans/00/20230427155734/results/b00.uvfits
     """
     sbid = "SB{:0>6}".format(sbid)
-    return glob.glob(f"/data/seren-*/big/craco/{sbid}/scans/*/*/results/b??.uvfits")
+    return glob.glob(f"/data/seren-*/big/craco/{sbid}/scans/*/*/{runname}/b??.uvfits")
     # return glob.glob(f"/data/seren-*/big/craco/{sbid}/scans/*/*/results/b00.uvfits")
 
 def _extract_uvfits_info(path):
@@ -90,13 +90,14 @@ def _construct_workdir(path, basedir="./"):
 
 def calibrate_sbid(
         sbid, basedir="./", build_dir="/data/craco/wan342/scripts/craco_calib/scripts",
-        catalog="/data/big/craco/calibration/dat/racs-low.fits", catfreq=887.5
+        catalog="/data/big/craco/calibration/dat/racs-low.fits", catfreq=887.5,
+        runname="results"
     ):
     """
     produce calibration solution based on a given sbid.
     All relevant outputs are saving under the given base directory
     """
-    uvfitspaths = _find_uvfits(sbid)
+    uvfitspaths = _find_uvfits(sbid, runname=runname)
     for uvfitspath in uvfitspaths:
         work_dir = _construct_workdir(uvfitspath, basedir=basedir)
         execute_calibration(
@@ -117,12 +118,17 @@ def _main():
         "-build_dir", type=str, help="calibration binary files directory", 
         default="/data/big/craco/wan342/craco_calib/scripts/"
     )
+    args.add_argument(
+        "-r", "--runname", type=str, help="runname for creating uvfits file, `results` by default",
+        default="results"
+    )
 
     values = args.parse_args()
 
     calibrate_sbid(
         sbid=values.sbid, basedir=values.dir, build_dir=values.build_dir,
-        catalog="/data/big/craco/calibration/dat/racs-low.fits", catfreq=887.5
+        catalog="/data/big/craco/calibration/dat/racs-low.fits", catfreq=887.5,
+        runname=values.runname,
     )
 
 if __name__ == "__main__":

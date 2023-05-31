@@ -97,7 +97,7 @@ if __name__ == '__main__':
     )
     a.add_argument(
         "-catalog", type=str, help="Path to the catalogue used in self-calibration",
-        default="/data/craco/wan342/data/catalogue/racs-low.fits"
+        default="/data/big/craco/calibration/dat/racs-low.fits"
     )
     a.add_argument(
         "-catfreq", type=float, help="central frequency of the catalogue provided",

@@ -22,9 +22,10 @@ This code is used for creating calibration solution for a given SBID on seren
 
 4. Calibrate all beams for a given SBID
 
-   > ./calib_sbid.sh $SCHEDULE_BLOCK_ID
+   > ./calib_sbid.sh $SCHEDULE_BLOCK_ID $RUNNAME
 
-  This is the main part of the calibration, it will look for all uvfits file within a given SBID, do the calibration for all scans, all beams
+  This is the main part of the calibration, it will look for all uvfits file within a given SBID, do the calibration for all scans, all beams.
+  If $RUNNAME is not specified, it will use `results` by default. That is the folder name where you store all the outputs.
   
   
 ### Result

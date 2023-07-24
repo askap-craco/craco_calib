@@ -3,7 +3,8 @@ sbid=$1
 run=$2
 
 # add LD_LIBRARY_PATH for this run
-LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/data/seren-01/big/craco/wan342/lib:/data/seren-01/big/craco/wan342/software/anaconda/envs/calib/lib
+# LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/data/seren-01/big/craco/wan342/lib:/data/seren-01/big/craco/wan342/software/anaconda/envs/calib/lib
+LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/data/seren-01/fast/wan342/lib:/data/seren-01/fast/wan342/software/conda3/envs/craco_calib/lib
 PATH=$PATH:/data/seren-01/big/craco/wan342/bin
 
 if [ -z "$run" ]; then

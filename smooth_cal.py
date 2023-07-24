@@ -248,6 +248,7 @@ def _smooth_amp(
     # perform fitting - for amplitude, don't do it in a regular iterative way
     _bp_chan_amp = bp_chan_amp.copy() # make a copy
     for deg, sigma in deg_sigma:
+        if deg > maxdeg: continue
         for i in range(loop):
             # find out median here in the 0-th order
             if deg == 0:
@@ -407,7 +408,7 @@ def smooth_bandpass(bp, amp_threshold=20., plot=True, plotdir="./"):
                 bp_chan = bp[i, ia, :, ipol]
                 # mask = np.abs(bp_chan) > 20.
                 mask = None
-                amp_coef, bp_amp_, bp_amp_f = _smooth_amp(bp_chan, maxdeg=4, mask=mask)
+                amp_coef, bp_amp_, bp_amp_f = _smooth_amp(bp_chan, maxdeg=0, mask=mask)
                 phase_coef, bp_phase_, bp_phase_f = _smooth_phase(bp_chan, bp[i, ia_ref, :, ipol], mask=mask)
 
                 ### make it to amp * np.exp(i*phase)

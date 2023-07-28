@@ -252,7 +252,7 @@ def _smooth_amp(
         for i in range(loop):
             # find out median here in the 0-th order
             if deg == 0:
-                coef = np.array(np.median(_bp_chan_amp))
+                coef = np.array(np.nanmedian(_bp_chan_amp))
             else:
                 coef = _fit_value(_bp_chan_amp, x_=x_, deg=deg)
             _bp_chan_amp = _flag_bad(_bp_chan_amp, coef, x_=x_, sigma=sigma)

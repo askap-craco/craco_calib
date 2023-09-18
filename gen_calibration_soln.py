@@ -14,6 +14,7 @@ from smooth_cal import smooth_bandpass
 
 ### craco related
 from craco import plotbp
+from craft.cmdline import strrange
 
 def _load_binsol(binfile):
     """
@@ -66,7 +67,7 @@ def main(args):
     bp = _load_binsol(bin_name)
     plotdir = f"{work_dir}/bp_smooth/"
     if not os.path.exists(plotdir): os.makedirs(plotdir)
-    bp_ = smooth_bandpass(bp, plotdir=plotdir)
+    bp_ = smooth_bandpass(bp, plotdir=plotdir, flagchan=args.flagchan)
     smooth_npy = bin_name.strip("bin") + "smooth.npy"
     np.save(smooth_npy, bp_)
     
@@ -84,6 +85,10 @@ if __name__ == '__main__':
     group = a.add_mutually_exclusive_group()
     group.add_argument("-vis_ms", type=str, help="Path to visibility ms file")
     group.add_argument("-vis_uvfits", type=str, help="Path to visibility UVFits file")
+
+    a.add_argument(
+        "-flagchan", type=strrange, help="string range to indicate which channels to flag",
+    )
 
     ### remove measurement sets...
     a.add_argument(

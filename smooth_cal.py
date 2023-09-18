@@ -4,7 +4,20 @@
 import numpy as np  
 import matplotlib.pyplot as plt
 
-def _fit_value(val, x_ = None, deg=12):
+def strrange(cmdstr=None):
+    if cmdstr is None: return None
+    rangelst = cmdstr.split(",")
+    numlst = []
+    for range_ in rangelst:
+        if "~" in range_:
+            start_, end_ = range_.split("~")
+            tmp = [i for i in range(int(start_), int(end_) + 1)]
+        else:
+            tmp = [int(range_)]
+        numlst.extend(tmp)
+    return numlst
+
+def _fit_value(val, x_ = None, deg=12, flag=None):
     """
     Use polynomial fitting to fit values
 
@@ -143,7 +156,7 @@ def _check_nan(arr):
     """
     return (~np.isnan(arr)).sum() == 0
 
-def _check_refant(bp, ia):
+def _check_refant(bp, ia): #, per_thres=0.05):
     """
     check if a given antenna is good to serve as a reference
 
@@ -166,6 +179,11 @@ def _check_refant(bp, ia):
         currently, we only check if all data for this antenna is empty...
     """
     bp_ant = bp[0, ia, ...]
+    ### here we use a threshold to do that
+    # nanchan = np.isnan(bp_ant).sum()
+    # if nanchan / len(bp_ant) <= per_thres:
+    #     return True
+    # return False
     return not _check_nan(bp_ant)
 
 def _smooth_amp_iter(bp_chan, deg=12, mask=None):
@@ -369,7 +387,7 @@ def plot_smooth_process(
     return fig, axes
 
 
-def smooth_bandpass(bp, amp_threshold=20., plot=True, plotdir="./"):
+def smooth_bandpass(bp, amp_threshold=20., plot=True, plotdir="./", flagchan=None):
     """
     fit amplitude in the bandpass
 
@@ -395,6 +413,12 @@ def smooth_bandpass(bp, amp_threshold=20., plot=True, plotdir="./"):
     bp_ = np.zeros(bp.shape, dtype=complex)
     n, nant, nchan, npol = bp.shape
 
+    if flagchan is not None:
+        # flagchanlst = strrange(flagchan)
+        flagmask = np.array([True if chan in flagchan else False for chan in np.arange(nchan)])
+    else:
+        flagmask = None
+
     for i in range(n):
         for ia in range(nant):
             if plot:
@@ -407,7 +431,7 @@ def smooth_bandpass(bp, amp_threshold=20., plot=True, plotdir="./"):
                     continue
                 bp_chan = bp[i, ia, :, ipol]
                 # mask = np.abs(bp_chan) > 20.
-                mask = None
+                mask = flagmask
                 amp_coef, bp_amp_, bp_amp_f = _smooth_amp(bp_chan, maxdeg=0, mask=mask)
                 phase_coef, bp_phase_, bp_phase_f = _smooth_phase(bp_chan, bp[i, ia_ref, :, ipol], mask=mask)
 

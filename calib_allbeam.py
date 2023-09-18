@@ -4,6 +4,8 @@ import os
 import glob
 import argparse
 
+from craft.cmdline import strrange
+
 def _check_file(file, dir):
     """
     check if a file is already in a given directory...
@@ -17,7 +19,7 @@ def _check_file(file, dir):
 def execute_calibration(
     craco_input, work_dir="./",
     build_dir="/data/craco/wan342/scripts/craco_calib/scripts",
-    catalog="racs-low.fits", catfreq=887.5,
+    catalog="racs-low.fits", catfreq=887.5, flagchan=None
 ):
 # TODO: change catalog, build_dir, catfreq when moving to seren...
     """
@@ -37,6 +39,8 @@ def execute_calibration(
     # start to execute gen_calibration_soln...
     calcmd = f"gen_calibration_soln.py -vis_uvfits {work_dir}/{craco_fitsfname} -build_dir {build_dir}"
     calcmd += f" -catalog {catalog} -catfreq {catfreq}"
+    if flagchan is not None: calcmd += f" -flagchan {flagchan}"
+    # print(calcmd)
     os.system(calcmd)
 
 
@@ -49,7 +53,8 @@ def _find_uvfits(sbid, runname="results"):
     """
     sbid = "SB{:0>6}".format(sbid)
     return glob.glob(f"/data/seren-*/big/craco/{sbid}/scans/*/*/{runname}/b??.uvfits")
-    # return glob.glob(f"/data/seren-*/big/craco/{sbid}/scans/*/*/results/b00.uvfits")
+    # return glob.glob(f"/data/seren-*/big/craco/{sbid}/scans/*/*/{runname}/b00.uvfits")
+    # return glob.glob(f"/data/seren-*/big/craco/{sbid}/scans/00/20230830053104/calfast/b??.uvfits")
 
 def _extract_uvfits_info(path):
     """
@@ -91,7 +96,7 @@ def _construct_workdir(path, basedir="./"):
 def calibrate_sbid(
         sbid, basedir="./", build_dir="/data/craco/wan342/scripts/craco_calib/scripts",
         catalog="/data/big/craco/calibration/dat/racs-low.fits", catfreq=887.5,
-        runname="results"
+        runname="results", flagchan=None,
     ):
     """
     produce calibration solution based on a given sbid.
@@ -105,6 +110,7 @@ def calibrate_sbid(
             work_dir=work_dir,
             build_dir=build_dir,
             catalog=catalog, catfreq=catfreq,
+            flagchan=flagchan,
         )
 
 def _main():
@@ -122,13 +128,17 @@ def _main():
         "-r", "--runname", type=str, help="runname for creating uvfits file, `results` by default",
         default="results"
     )
+    args.add_argument(
+        "-f", "--flagchan", type=str, help="channels to be flagged",
+        default=None
+    )
 
     values = args.parse_args()
 
     calibrate_sbid(
         sbid=values.sbid, basedir=values.dir, build_dir=values.build_dir,
         catalog="/data/big/craco/calibration/dat/racs-low.fits", catfreq=887.5,
-        runname=values.runname,
+        runname=values.runname, flagchan=values.flagchan
     )
 
 if __name__ == "__main__":

@@ -10,7 +10,7 @@ from convert import process as convert
 from extract_model_for_ms import process as extract
 from flag import process as flag
 from craco_vis import SimpleMeasurementSet
-from smooth_cal import smooth_bandpass
+from smooth_cal import CracoBandPass
 
 ### craco related
 from craco import plotbp
@@ -66,11 +66,10 @@ def main(args):
     np.save(freq_name, craco_ms.freqs)
 
     print("------> Fitting calibration solution...")
-    bp = _load_binsol(bin_name)
     plotdir = f"{work_dir}/bp_smooth/"
-    if not os.path.exists(plotdir): os.makedirs(plotdir)
-    bp_ = smooth_bandpass(bp, plotdir=plotdir, flagchan=args.flagchan)
-    np.save(smooth_npy, bp_)
+    bp = CracoBandPass(bin_name, flagchan=args.flagchan)
+    bp.smooth_sol(plotdir=plotdir)
+    bp.dump_calibration(smooth_npy)
     
     if args.clean:
         print("------> Cleaning the directory....")

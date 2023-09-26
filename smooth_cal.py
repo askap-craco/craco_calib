@@ -109,7 +109,7 @@ class UnWrapFit:
         self.unwrapy = self.yvalue + np.rint((besty - self.yvalue) / self.period) * self.period
         
     
-    def unwrap_poly_fit(self):
+    def unwrap_poly_fit(self, threshold=5):
         xtofit = self.xvalue
         ytofit = self.unwrapy
         ### check if all ytofit is nan
@@ -127,7 +127,10 @@ class UnWrapFit:
             
             # get residual etc.
             res = yfit - ytofit
-            ytofit[abs(res) > self.fit_sigma * np.nanstd(res)] = np.nan
+            ytofit[
+                (abs(res) > self.fit_sigma * np.nanstd(res)) &
+                (abs(res) > np.deg2rad(threshold))
+            ] = np.nan
 
         self.yfit = pfit(self.xvalue)
         

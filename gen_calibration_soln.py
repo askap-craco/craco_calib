@@ -86,7 +86,7 @@ if __name__ == '__main__':
     group.add_argument("-vis_uvfits", type=str, help="Path to visibility UVFits file")
 
     a.add_argument(
-        "-flagchan", type=strrange, help="string range to indicate which channels to flag",
+        "-flagchan", type=strrange, help="string range to indicate which channels to flag", default="",
     )
 
     ### remove measurement sets...

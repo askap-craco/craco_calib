@@ -12,6 +12,11 @@ from multiprocessing import Pool, cpu_count
 import warnings
 warnings.filterwarnings('ignore')
 
+import logging
+log = logging.getLogger(__name__)
+logging.basicConfig(level=logging.INFO)
+
+
 def count_nan(arr, isnan=True, fraction=True):
     """
     count how many nan or inf values are there in a given array
@@ -142,10 +147,17 @@ class UnWrapFit:
     
 
 class CracoBandPass:
-    
-    def __init__(self, fname, refant=None, flagchan=None):
+    def __init__(self, fname, refant=None, flagchan=None, flagfile="/home/craftop/share/fixed_freq_flags.txt"):
         self.bandpass = self._load_bandpass(fname)
-        self.bandpass = self._apply_flag(self.bandpass, flagchan)
+        if flagchan is not None:
+            self.bandpass = self._apply_flag_chan(self.bandpass, flagchan)
+        if flagfile is not None:
+            try: 
+                self.freqs = np.load(fname.replace(".bin", ".freq.npy"))
+                fileflagchan = self.__load_flagfile_chans(flagfile)
+                self.bandpass = self._apply_flag_chan(self.bandpass, fileflagchan)
+            except: 
+                log.warning(f"no frequency file found... will not flag frequencies in {flagfile}")
         self.nant, self.nchan, self.npol = self.bandpass.shape # get the shape of the solution
         self.ira = self._check_refant(refant)
         
@@ -170,7 +182,7 @@ class CracoBandPass:
             
         raise ValueError("not supported file type...")
         
-    def _apply_flag(self, bandpass, flagchan):
+    def _apply_flag_chan(self, bandpass, flagchan):
         """
         apply channel flags to the solution...
         """
@@ -180,7 +192,15 @@ class CracoBandPass:
         ### apply flags
         bandpass[:, flagchan, :] = np.nan + 1j * np.nan
         return bandpass
-            
+
+    ### flag solution based on the freqeucny range
+    def __load_flagfile_chans(self, flagfile):
+        flagfreqs = np.loadtxt(flagfile)
+        arr_lst = [(self.freqs / 1e6 <= freqs[1]) & (self.freqs / 1e6 >= freqs[0]) for freqs in flagfreqs]
+        freqflag_bool = np.sum(arr_lst, axis=0).astype(bool)
+        log.info(f"flag {freqflag_bool.sum()} channels...")
+        return np.arange(self.freqs.shape[0])[freqflag_bool]
+
     def _check_refant(self, refant=None):
         if refant is None:
             valid_data_arr = np.array([count_nan(self.bandpass[ia, ...]) for ia in range(self.nant)])

@@ -65,17 +65,17 @@ def main(args):
     craco_ms = SimpleMeasurementSet(four_pol_vis)
     np.save(freq_name, craco_ms.freqs)
 
-    print("------> Fitting calibration solution...")
-    plotdir = f"{work_dir}/bp_smooth/"
-    bp = CracoBandPass(bin_name, flagchan=args.flagchan)
-    bp.smooth_sol(plotdir=plotdir)
-    bp.dump_calibration(smooth_npy)
-    
     if args.clean:
         print("------> Cleaning the directory....")
         work_dir = os.path.dirname(bin_name)
         # print(f"rm -r {work_dir}/*.ms")
         os.system(f"rm -r {work_dir}/*.ms")
+
+    print("------> Fitting calibration solution...")
+    plotdir = f"{work_dir}/bp_smooth/"
+    bp = CracoBandPass(bin_name, flagchan=args.flagchan)
+    bp.smooth_sol(plotdir=plotdir)
+    bp.dump_calibration(smooth_npy)
         
     print("-------> All Done!  We can now apply the solution saved in the soln file - {0}".format(bin_name))
 

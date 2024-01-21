@@ -148,6 +148,7 @@ class UnWrapFit:
 
 class CracoBandPass:
     def __init__(self, fname, refant=None, flagchan=None, flagfile="/home/craftop/share/fixed_freq_flags.txt"):
+        self.fname = fname # used for logging...
         self.bandpass = self._load_bandpass(fname)
         if flagchan is not None:
             self.bandpass = self._apply_flag_chan(self.bandpass, flagchan)
@@ -172,6 +173,7 @@ class CracoBandPass:
         (nant, nchan, npol)
         """
         if fname.endswith(".bin"): # bin file from Emil scripts
+            log.info(f"loading bandpass from {fname}...")
             bpcls = plotbp.Bandpass.load(fname)
             bp = bpcls.bandpass.copy()[0, ...]
             
@@ -180,7 +182,7 @@ class CracoBandPass:
             
             return bp
             
-        raise ValueError("not supported file type...")
+        raise ValueError(f"not supported file type... {fname}")
         
     def _apply_flag_chan(self, bandpass, flagchan):
         """
@@ -207,7 +209,7 @@ class CracoBandPass:
             ira = valid_data_arr.argmin() # ref-antenna index, 0-indexed!
         else:
             ira = int(refant)
-        assert valid_data_arr[ira] != 1., "no reference antenna found..."
+        assert valid_data_arr[ira] != 1., f"no reference antenna found in {self.fname}..."
         return ira
     
     def _amplitude_fit(self, y, sigma=3, loop=3):
@@ -317,9 +319,13 @@ class CracoBandPass:
         
         if not multiproc:
             for ia in range(self.nant):
-                ia, bpantsmooth = self._smooth_sol_ant(ia, plot=plot, plotdir=plotdir)
-                bpsmooth[ia] = bpantsmooth
-                plt.close()
+                try:
+                    ia, bpantsmooth = self._smooth_sol_ant(ia, plot=plot, plotdir=plotdir)
+                    bpsmooth[ia] = bpantsmooth
+                    plt.close()
+                except Exception as error:
+                    log.warning(f"failed to fit calibration solution for ant{ia}...")
+
                 
         self.bpsmooth = bpsmooth.reshape((1, self.nant, self.nchan, self.npol))
         

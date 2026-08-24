@@ -48,9 +48,9 @@ class UnWrapFit:
         outlier_sigma=3, outlier_loop=3,
         fit_sigma = 3, fit_loop = 3,
     ):
-        maximum_wrap = 8
+        maximum_wrap = 50
         maximum_nx = 288
-        ntrials = 500
+        ntrials = 1000
         
         self.yvalue = np.array(yvalue)
         if xvalue is None:
